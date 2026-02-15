@@ -1,6 +1,6 @@
 # Terminal Text Buffer
 
-A Java implementation of the core data structure used by terminal emulators to store and manipulate displayed text.
+A Java implementation of the core data structure used by terminal emulators to store and manipulate displayed text, with full GUI support for visual rendering.
 
 ## Overview
 
@@ -10,6 +10,7 @@ This project implements a terminal text buffer that manages:
 - Scrollback history (lines that have scrolled off-screen)
 - Cursor position and movement
 - Text editing operations
+- **Visual rendering with Swing GUI** (NEW!)
 
 ## Features
 
@@ -21,6 +22,9 @@ This project implements a terminal text buffer that manages:
 - **Cell**: Individual character cell with its attributes
 - **Cursor**: Position tracking within the buffer
 - **TerminalBuffer**: Main buffer implementation with screen and scrollback
+- **ColorMapper**: Maps terminal colors to AWT colors for rendering (NEW!)
+- **TerminalPanel**: Swing component that visually renders the buffer (NEW!)
+- **TerminalGUI**: Interactive GUI demo application (NEW!)
 
 ### Operations Supported
 
@@ -73,7 +77,7 @@ mvn clean compile
 javac -d target/classes src/main/java/org/example/*.java
 ```
 
-### Run the demo
+### Run the console demo
 ```bash
 # With Maven
 mvn exec:java -Dexec.mainClass="org.example.Main"
@@ -81,6 +85,22 @@ mvn exec:java -Dexec.mainClass="org.example.Main"
 # With javac
 java -cp target/classes org.example.Main
 ```
+
+### Run the GUI demo (NEW!)
+```bash
+# With Maven
+mvn exec:java -Dexec.mainClass="org.example.TerminalGUI"
+
+# With javac
+java -cp target/classes org.example.TerminalGUI
+```
+
+The GUI demo provides:
+- **Visual rendering** of all terminal colors (normal and bright variants)
+- **Real-time display** of bold, italic, and underline styles
+- **Background colors** with proper foreground/background combinations
+- **Interactive controls**: Clear screen, run demo, add scrollback, adjust font size
+- **Blinking cursor** showing current position
 
 ## Running Tests
 
@@ -136,6 +156,30 @@ buffer.insertEmptyLineAtBottom();
 String scrolledLine = buffer.getLineAsString(-1);
 ```
 
+### GUI Usage Example (NEW!)
+
+```java
+// Create and display terminal GUI
+SwingUtilities.invokeLater(() -> {
+    TerminalBuffer buffer = new TerminalBuffer(80, 24, 1000);
+    TerminalPanel panel = new TerminalPanel(buffer);
+    
+    JFrame frame = new JFrame("Terminal");
+    frame.add(new JScrollPane(panel));
+    frame.pack();
+    frame.setVisible(true);
+    
+    // Write colorful text
+    buffer.setCurrentAttributes(new CellAttributes(
+        Color.BRIGHT_GREEN,
+        Color.BLACK,
+        new StyleFlags(true, false, false)
+    ));
+    buffer.writeText("Hello, colorful world!");
+    panel.repaint();
+});
+```
+
 ## Test Coverage
 
 The project includes comprehensive tests covering:
@@ -153,9 +197,10 @@ The project includes comprehensive tests covering:
 - **StyleFlagsTest**: Style flag combinations
 - **CellAttributesTest**: Attribute immutability and combinations
 - **CellTest**: Cell behavior and empty cell detection
+- **ColorMapperTest**: Color mapping and conversion (NEW!)
 
 ### Test Statistics
-- 50+ test cases
+- 60+ test cases
 - All edge cases and boundary conditions covered
 - Tests document expected behavior
 
@@ -167,12 +212,20 @@ src/
 │   ├── Cell.java              # Character cell with attributes
 │   ├── CellAttributes.java    # Color and style attributes
 │   ├── Color.java             # Terminal color enumeration
+│   ├── ColorMapper.java       # Terminal to AWT color mapping (NEW!)
 │   ├── Cursor.java            # Cursor position management
-│   ├── Main.java              # Demo application
+│   ├── Main.java              # Console demo application
 │   ├── StyleFlags.java        # Text style flags
-│   └── TerminalBuffer.java    # Main buffer implementation
+│   ├── TerminalBuffer.java    # Main buffer implementation
+│   ├── TerminalGUI.java       # GUI demo application (NEW!)
+│   └── TerminalPanel.java     # Swing rendering component (NEW!)
 └── test/java/org/example/
     ├── CellAttributesTest.java
+    ├── CellTest.java
+    ├── ColorMapperTest.java   # (NEW!)
+    ├── StyleFlagsTest.java
+    └── TerminalBufferTest.java
+```
     ├── CellTest.java
     ├── StyleFlagsTest.java
     └── TerminalBufferTest.java
@@ -205,6 +258,15 @@ src/
 - Writing text applies current attributes to new cells
 - Allows easy batch styling without passing attributes to each operation
 
+### GUI Rendering (NEW!)
+- Full color support: 16 standard ANSI colors (normal + bright variants)
+- Style rendering: bold, italic, underline visually displayed
+- Background colors properly rendered
+- Monospace font for proper character alignment
+- Blinking cursor indicator
+- Adjustable font size
+- Smooth text antialiasing
+
 ## Git History
 
 The repository demonstrates incremental development with clear commits:
@@ -221,6 +283,11 @@ The repository demonstrates incremental development with clear commits:
 10. Add comprehensive unit tests for TerminalBuffer
 11. Add unit tests for StyleFlags, CellAttributes, and Cell
 12. Add demonstration program for TerminalBuffer
+13. Add comprehensive README documentation
+14. Add test compilation script
+15. **Add ColorMapper for terminal color to AWT color conversion** (NEW!)
+16. **Add TerminalPanel Swing component for visual rendering** (NEW!)
+17. **Add tests for ColorMapper** (NEW!)
 
 Each commit represents a logical unit of work with descriptive messages.
 
