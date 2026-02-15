@@ -12,6 +12,8 @@ public class TerminalGUI {
     private JFrame frame;
     private TerminalBuffer buffer;
     private TerminalPanel terminalPanel;
+    private JButton interactiveModeButton;
+    private JLabel statusLabel;
 
     public TerminalGUI() {
         // Create buffer: 80 columns, 24 rows, 1000 lines scrollback
@@ -34,6 +36,14 @@ public class TerminalGUI {
         // Create control panel
         JPanel controlPanel = new JPanel(new FlowLayout());
         
+        // Status label
+        statusLabel = new JLabel("Demo Mode");
+        statusLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
+        
+        // Interactive mode toggle button
+        interactiveModeButton = new JButton("Enable Interactive Mode");
+        interactiveModeButton.addActionListener(e -> toggleInteractiveMode());
+        
         JButton clearButton = new JButton("Clear Screen");
         clearButton.addActionListener(e -> {
             buffer.clearScreen();
@@ -41,7 +51,16 @@ public class TerminalGUI {
         });
         
         JButton demoButton = new JButton("Run Demo");
-        demoButton.addActionListener(e -> runDemo());
+        demoButton.addActionListener(e -> {
+            if (terminalPanel.isInteractiveMode()) {
+                JOptionPane.showMessageDialog(frame, 
+                    "Disable Interactive Mode first to run the demo.",
+                    "Interactive Mode Active", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                runDemo();
+            }
+        });
         
         JButton scrollbackButton = new JButton("Add Scrollback");
         scrollbackButton.addActionListener(e -> {
@@ -58,6 +77,10 @@ public class TerminalGUI {
             terminalPanel.setFontSize(Integer.parseInt(size));
         });
         
+        controlPanel.add(statusLabel);
+        controlPanel.add(new JSeparator(SwingConstants.VERTICAL));
+        controlPanel.add(interactiveModeButton);
+        controlPanel.add(new JSeparator(SwingConstants.VERTICAL));
         controlPanel.add(new JLabel("Font Size:"));
         controlPanel.add(fontSizeCombo);
         controlPanel.add(clearButton);
@@ -69,6 +92,76 @@ public class TerminalGUI {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+    
+    private void toggleInteractiveMode() {
+        boolean newMode = !terminalPanel.isInteractiveMode();
+        terminalPanel.setInteractiveMode(newMode);
+        
+        if (newMode) {
+            // Entering interactive mode
+            interactiveModeButton.setText("Disable Interactive Mode");
+            statusLabel.setText("Interactive Mode - Type to test!");
+            statusLabel.setForeground(new java.awt.Color(0, 150, 0));
+            
+            buffer.clearScreen();
+            buffer.setCursorPosition(0, 0);
+            
+            // Write instructions
+            buffer.setCurrentAttributes(new CellAttributes(
+                org.example.Color.BRIGHT_CYAN,
+                org.example.Color.DEFAULT,
+                new StyleFlags(true, false, false)
+            ));
+            buffer.writeText("=== INTERACTIVE MODE ===");
+            
+            buffer.setCursorPosition(2, 0);
+            buffer.setCurrentAttributes(new CellAttributes(
+                org.example.Color.BRIGHT_WHITE,
+                org.example.Color.DEFAULT,
+                StyleFlags.DEFAULT
+            ));
+            buffer.writeText("Start typing! Try:");
+            
+            buffer.setCursorPosition(3, 2);
+            buffer.setCurrentAttributes(new CellAttributes(
+                org.example.Color.YELLOW,
+                org.example.Color.DEFAULT,
+                StyleFlags.DEFAULT
+            ));
+            buffer.writeText("- Regular text");
+            
+            buffer.setCursorPosition(4, 2);
+            buffer.writeText("- Arrow keys to move cursor");
+            
+            buffer.setCursorPosition(5, 2);
+            buffer.writeText("- Enter for new line");
+            
+            buffer.setCursorPosition(6, 2);
+            buffer.writeText("- Backspace to delete");
+            
+            buffer.setCursorPosition(7, 2);
+            buffer.writeText("- Tab for spaces");
+            
+            buffer.setCursorPosition(9, 0);
+            buffer.setCurrentAttributes(new CellAttributes(
+                org.example.Color.BRIGHT_GREEN,
+                org.example.Color.DEFAULT,
+                new StyleFlags(false, true, false)
+            ));
+            buffer.writeText("Type below this line:");
+            
+            buffer.setCursorPosition(10, 0);
+            buffer.setCurrentAttributes(CellAttributes.DEFAULT);
+            
+            terminalPanel.repaint();
+            terminalPanel.requestFocusInWindow();
+        } else {
+            // Exiting interactive mode
+            interactiveModeButton.setText("Enable Interactive Mode");
+            statusLabel.setText("Demo Mode");
+            statusLabel.setForeground(java.awt.Color.BLACK);
+        }
     }
 
     private void runDemo() {

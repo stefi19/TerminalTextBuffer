@@ -7,6 +7,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * A Swing component that renders a TerminalBuffer with full color and style support.
@@ -24,6 +26,7 @@ public class TerminalPanel extends JPanel {
     
     private boolean showCursor = true;
     private Timer cursorBlinkTimer;
+    private boolean interactiveMode = false;
 
     /**
      * Creates a new TerminalPanel for the given buffer.
@@ -43,6 +46,23 @@ public class TerminalPanel extends JPanel {
         
         setBackground(ColorMapper.getDefaultBackground());
         setFocusable(true);
+        
+        // Add keyboard listener for interactive mode
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (interactiveMode) {
+                    handleKeyTyped(e);
+                }
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (interactiveMode) {
+                    handleKeyPressed(e);
+                }
+            }
+        });
         
         // Make cursor blink
         cursorBlinkTimer = new Timer(500, e -> {
@@ -198,5 +218,133 @@ public class TerminalPanel extends JPanel {
      */
     public TerminalBuffer getBuffer() {
         return buffer;
+    }
+    
+    /**
+     * Enables or disables interactive mode.
+     * In interactive mode, keyboard input is captured and written to the buffer.
+     */
+    public void setInteractiveMode(boolean enabled) {
+        this.interactiveMode = enabled;
+        if (enabled) {
+            requestFocusInWindow();
+        }
+    }
+    
+    /**
+     * Returns whether interactive mode is enabled.
+     */
+    public boolean isInteractiveMode() {
+        return interactiveMode;
+    }
+    
+    /**
+     * Handles regular character input.
+     */
+    private void handleKeyTyped(KeyEvent e) {
+        char ch = e.getKeyChar();
+        
+        // Ignore control characters except specific ones
+        if (Character.isISOControl(ch) && ch != '\n' && ch != '\t' && ch != '\b') {
+            return;
+        }
+        
+        // Handle backspace
+        if (ch == '\b') {
+            handleBackspace();
+            return;
+        }
+        
+        // Handle tab
+        if (ch == '\t') {
+            buffer.writeText("    "); // 4 spaces for tab
+            repaint();
+            return;
+        }
+        
+        // Handle newline
+        if (ch == '\n') {
+            handleNewline();
+            return;
+        }
+        
+        // Write the character
+        buffer.writeText(String.valueOf(ch));
+        repaint();
+    }
+    
+    /**
+     * Handles special key presses (arrows, etc).
+     */
+    private void handleKeyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_LEFT:
+                buffer.moveCursorLeft(1);
+                repaint();
+                break;
+                
+            case KeyEvent.VK_RIGHT:
+                buffer.moveCursorRight(1);
+                repaint();
+                break;
+                
+            case KeyEvent.VK_UP:
+                buffer.moveCursorUp(1);
+                repaint();
+                break;
+                
+            case KeyEvent.VK_DOWN:
+                buffer.moveCursorDown(1);
+                repaint();
+                break;
+                
+            case KeyEvent.VK_HOME:
+                buffer.setCursorPosition(buffer.getCursor().getRow(), 0);
+                repaint();
+                break;
+                
+            case KeyEvent.VK_END:
+                buffer.setCursorPosition(buffer.getCursor().getRow(), buffer.getWidth() - 1);
+                repaint();
+                break;
+        }
+    }
+    
+    /**
+     * Handles backspace key.
+     */
+    private void handleBackspace() {
+        Cursor cursor = buffer.getCursor();
+        int col = cursor.getColumn();
+        int row = cursor.getRow();
+        
+        if (col > 0) {
+            // Move cursor left and write space
+            buffer.moveCursorLeft(1);
+            buffer.writeText(" ");
+            buffer.moveCursorLeft(1);
+        } else if (row > 0) {
+            // Move to end of previous line
+            buffer.setCursorPosition(row - 1, buffer.getWidth() - 1);
+        }
+        repaint();
+    }
+    
+    /**
+     * Handles newline/Enter key.
+     */
+    private void handleNewline() {
+        Cursor cursor = buffer.getCursor();
+        int row = cursor.getRow();
+        
+        // Move to next line, beginning of line
+        if (row < buffer.getHeight() - 1) {
+            buffer.setCursorPosition(row + 1, 0);
+        } else {
+            // At bottom, need to scroll
+            buffer.insertEmptyLineAtBottom();
+            buffer.setCursorPosition(buffer.getHeight() - 1, 0);
+        }
+        repaint();
     }
 }
