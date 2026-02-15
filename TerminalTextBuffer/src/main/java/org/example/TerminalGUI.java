@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 /**
  * A GUI application that demonstrates the TerminalBuffer with visual rendering.
  * Shows colors, styles (bold, italic, underline), and interactive features.
+ * Includes controls for styling text and selecting colors.
  */
 public class TerminalGUI {
     private JFrame frame;
@@ -14,6 +15,15 @@ public class TerminalGUI {
     private TerminalPanel terminalPanel;
     private JButton interactiveModeButton;
     private JLabel statusLabel;
+    
+    // Style controls
+    private JCheckBox boldCheckBox;
+    private JCheckBox italicCheckBox;
+    private JCheckBox underlineCheckBox;
+    
+    // Color controls
+    private JComboBox<Color> foregroundCombo;
+    private JComboBox<Color> backgroundCombo;
 
     public TerminalGUI() {
         // Create buffer: 80 columns, 24 rows, 1000 lines scrollback
@@ -33,7 +43,10 @@ public class TerminalGUI {
         JScrollPane scrollPane = new JScrollPane(terminalPanel);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // Create control panel
+        // Create control panel at the bottom
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        
+        // Main control panel with buttons
         JPanel controlPanel = new JPanel(new FlowLayout());
         
         // Status label
@@ -87,11 +100,129 @@ public class TerminalGUI {
         controlPanel.add(demoButton);
         controlPanel.add(scrollbackButton);
         
-        frame.add(controlPanel, BorderLayout.SOUTH);
+        // Style and color panel
+        JPanel stylePanel = createStylePanel();
+        
+        bottomPanel.add(controlPanel, BorderLayout.CENTER);
+        bottomPanel.add(stylePanel, BorderLayout.SOUTH);
+        
+        frame.add(bottomPanel, BorderLayout.SOUTH);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+    
+    private JPanel createStylePanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder("Text Styling"));
+        
+        // Style checkboxes
+        boldCheckBox = new JCheckBox("Bold");
+        boldCheckBox.addActionListener(e -> updateCurrentAttributes());
+        
+        italicCheckBox = new JCheckBox("Italic");
+        italicCheckBox.addActionListener(e -> updateCurrentAttributes());
+        
+        underlineCheckBox = new JCheckBox("Underline");
+        underlineCheckBox.addActionListener(e -> updateCurrentAttributes());
+        
+        // Color combos
+        Color[] colors = Color.values();
+        
+        foregroundCombo = new JComboBox<>(colors);
+        foregroundCombo.setSelectedItem(Color.DEFAULT);
+        foregroundCombo.setRenderer(new ColorComboRenderer());
+        foregroundCombo.addActionListener(e -> updateCurrentAttributes());
+        
+        backgroundCombo = new JComboBox<>(colors);
+        backgroundCombo.setSelectedItem(Color.DEFAULT);
+        backgroundCombo.setRenderer(new ColorComboRenderer());
+        backgroundCombo.addActionListener(e -> updateCurrentAttributes());
+        
+        panel.add(boldCheckBox);
+        panel.add(italicCheckBox);
+        panel.add(underlineCheckBox);
+        panel.add(new JSeparator(SwingConstants.VERTICAL));
+        panel.add(new JLabel("Foreground:"));
+        panel.add(foregroundCombo);
+        panel.add(new JLabel("Background:"));
+        panel.add(backgroundCombo);
+        
+        return panel;
+    }
+    
+    private void updateCurrentAttributes() {
+        StyleFlags styleFlags = new StyleFlags(
+            boldCheckBox.isSelected(),
+            italicCheckBox.isSelected(),
+            underlineCheckBox.isSelected()
+        );
+        
+        Color fg = (Color) foregroundCombo.getSelectedItem();
+        Color bg = (Color) backgroundCombo.getSelectedItem();
+        
+        CellAttributes newAttrs = new CellAttributes(
+            fg != null ? fg : Color.DEFAULT,
+            bg != null ? bg : Color.DEFAULT,
+            styleFlags
+        );
+        
+        buffer.setCurrentAttributes(newAttrs);
+    }
+    
+    /**
+     * Custom renderer for color combo boxes to show color names with visual preview.
+     */
+    private static class ColorComboRenderer extends DefaultListCellRenderer {
+        @Override
+        public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, 
+                int index, boolean isSelected, boolean cellHasFocus) {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            
+            if (value instanceof Color) {
+                Color color = (Color) value;
+                setText(color.name());
+                
+                // Show color preview (except for DEFAULT)
+                if (color != Color.DEFAULT) {
+                    java.awt.Color awtColor = ColorMapper.toAwtColor(color);
+                    setIcon(new ColorIcon(awtColor));
+                }
+            }
+            
+            return this;
+        }
+    }
+    
+    /**
+     * Simple icon that shows a color square.
+     */
+    private static class ColorIcon implements Icon {
+        private final java.awt.Color color;
+        private static final int SIZE = 16;
+        
+        public ColorIcon(java.awt.Color color) {
+            this.color = color;
+        }
+        
+        @Override
+        public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
+            g.setColor(color);
+            g.fillRect(x, y, SIZE, SIZE);
+            g.setColor(java.awt.Color.BLACK);
+            g.drawRect(x, y, SIZE, SIZE);
+        }
+        
+        @Override
+        public int getIconWidth() {
+            return SIZE;
+        }
+        
+        @Override
+        public int getIconHeight() {
+            return SIZE;
+        }
     }
     
     private void toggleInteractiveMode() {
@@ -224,14 +355,26 @@ public class TerminalGUI {
         buffer.setCursorPosition(16, 3);
         demonstrateCombined();
         
+        // Section 5: Wide characters (CJK, emoji)
+        buffer.setCursorPosition(19, 0);
+        buffer.setCurrentAttributes(new CellAttributes(
+            org.example.Color.BRIGHT_WHITE,
+            org.example.Color.DEFAULT,
+            new StyleFlags(true, false, true)
+        ));
+        buffer.writeText("5. Wide Characters (2-cell):");
+        
+        buffer.setCursorPosition(20, 3);
+        demonstrateWideCharacters();
+        
         // Footer
-        buffer.setCursorPosition(20, 0);
+        buffer.setCursorPosition(22, 0);
         buffer.setCurrentAttributes(new CellAttributes(
             org.example.Color.BRIGHT_BLACK,
             org.example.Color.DEFAULT,
             new StyleFlags(false, true, false)
         ));
-        buffer.writeText("Use the buttons below to interact with the terminal buffer!");
+        buffer.writeText("Use the buttons and style controls below to interact!");
         
         terminalPanel.repaint();
     }
@@ -356,6 +499,36 @@ public class TerminalGUI {
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("Bold+Underline on colored background");
+    }
+    
+    private void demonstrateWideCharacters() {
+        int row = buffer.getCursor().getRow();
+        
+        buffer.setCursorPosition(row, 3);
+        buffer.setCurrentAttributes(new CellAttributes(
+            org.example.Color.BRIGHT_GREEN,
+            org.example.Color.DEFAULT,
+            StyleFlags.DEFAULT
+        ));
+        // Note: Wide characters may not render properly depending on the font
+        // These are examples of characters that occupy 2 cells in real terminals
+        buffer.writeText("CJK: \u4E2D\u6587 ");  // Chinese characters
+        
+        buffer.setCursorPosition(row, 20);
+        buffer.setCurrentAttributes(new CellAttributes(
+            org.example.Color.BRIGHT_MAGENTA,
+            org.example.Color.DEFAULT,
+            StyleFlags.DEFAULT
+        ));
+        buffer.writeText("Katakana: \u30AB\u30BF\u30AB\u30CA");  // Japanese
+        
+        buffer.setCursorPosition(row, 40);
+        buffer.setCurrentAttributes(new CellAttributes(
+            org.example.Color.BRIGHT_CYAN,
+            org.example.Color.DEFAULT,
+            StyleFlags.DEFAULT
+        ));
+        buffer.writeText("Hangul: \uD55C\uAE00");  // Korean
     }
 
     public static void main(String[] args) {

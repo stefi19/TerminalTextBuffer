@@ -12,10 +12,11 @@ import java.util.List;
  * - Cursor: tracks where the next character will be written.
  * 
  * The buffer maintains current attributes (foreground, background, style) that are applied to newly written text.
+ * The buffer supports resizing, which adjusts dimensions while preserving content.
  */
 public class TerminalBuffer {
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private final int maxScrollbackLines;
     
     private final List<List<Cell>> screen;
@@ -56,8 +57,15 @@ public class TerminalBuffer {
      * Creates an empty line filled with empty cells.
      */
     private List<Cell> createEmptyLine() {
-        List<Cell> line = new ArrayList<>(width);
-        for (int i = 0; i < width; i++) {
+        return createEmptyLine(width);
+    }
+    
+    /**
+     * Creates an empty line with specified width, filled with empty cells.
+     */
+    private List<Cell> createEmptyLine(int lineWidth) {
+        List<Cell> line = new ArrayList<>();
+        for (int i = 0; i < lineWidth; i++) {
             line.add(Cell.EMPTY);
         }
         return line;
@@ -79,6 +87,112 @@ public class TerminalBuffer {
 
     public int getScrollbackSize() {
         return scrollback.size();
+    }
+    
+    /**
+     * Gets the cell at the specified position on the screen.
+     * 
+     * @param row the row index (0-based)
+     * @param column the column index (0-based)
+     * @return the cell at the specified position
+     * @throws IllegalArgumentException if position is out of bounds
+     */
+    public Cell getCellAt(int row, int column) {
+        if (row < 0 || row >= height || column < 0 || column >= width) {
+            throw new IllegalArgumentException(
+                String.format("Position (%d, %d) is out of bounds (screen: %d×%d)", 
+                    row, column, width, height)
+            );
+        }
+        return screen.get(row).get(column);
+    }
+    
+    /**
+     * Resizes the terminal buffer to new dimensions.
+     * Content from the top-left corner is preserved.
+     * If width increases, lines are padded with empty cells.
+     * If width decreases, lines are truncated.
+     * If height increases, new empty lines are added.
+     * If height decreases, bottom lines are moved to scrollback.
+     * The cursor position is adjusted to remain within new bounds.
+     * 
+     * @param newWidth new width in columns (must be > 0)
+     * @param newHeight new height in rows (must be > 0)
+     * @throws IllegalArgumentException if dimensions are invalid
+     */
+    public void resize(int newWidth, int newHeight) {
+        if (newWidth <= 0 || newHeight <= 0) {
+            throw new IllegalArgumentException(
+                String.format("Invalid dimensions: %d×%d (must be > 0)", newWidth, newHeight)
+            );
+        }
+        
+        // If dimensions are the same, nothing to do
+        if (newWidth == width && newHeight == height) {
+            return;
+        }
+        
+        // Handle height changes
+        if (newHeight < height) {
+            // Move excess lines to scrollback
+            int linesToMove = height - newHeight;
+            for (int i = 0; i < linesToMove; i++) {
+                List<Cell> line = screen.remove(screen.size() - 1);
+                scrollback.add(line);
+                // Maintain scrollback limit
+                if (scrollback.size() > maxScrollbackLines) {
+                    scrollback.remove(0);
+                }
+            }
+        } else if (newHeight > height) {
+            // Add new empty lines
+            int linesToAdd = newHeight - height;
+            for (int i = 0; i < linesToAdd; i++) {
+                screen.add(createEmptyLine(newWidth));
+            }
+        }
+        
+        // Handle width changes for all screen lines
+        for (int i = 0; i < screen.size(); i++) {
+            List<Cell> line = screen.get(i);
+            if (newWidth < width) {
+                // Truncate line
+                while (line.size() > newWidth) {
+                    line.remove(line.size() - 1);
+                }
+            } else if (newWidth > width) {
+                // Pad line with empty cells
+                while (line.size() < newWidth) {
+                    line.add(Cell.EMPTY);
+                }
+            }
+        }
+        
+        // Handle width changes for scrollback lines
+        for (int i = 0; i < scrollback.size(); i++) {
+            List<Cell> line = scrollback.get(i);
+            if (newWidth < width) {
+                // Truncate line
+                while (line.size() > newWidth) {
+                    line.remove(line.size() - 1);
+                }
+            } else if (newWidth > width) {
+                // Pad line with empty cells
+                while (line.size() < newWidth) {
+                    line.add(Cell.EMPTY);
+                }
+            }
+        }
+        
+        // Update dimensions
+        this.width = newWidth;
+        this.height = newHeight;
+        
+        // Adjust cursor position to remain within bounds
+        cursor.setPosition(
+            Math.min(cursor.getRow(), newHeight - 1),
+            Math.min(cursor.getColumn(), newWidth - 1)
+        );
     }
 
     // Attribute management
@@ -142,19 +256,44 @@ public class TerminalBuffer {
     /**
      * Moves the cursor left by the specified number of columns.
      * The cursor will not move outside screen bounds.
+     * Skips over wide character continuations.
      */
     public void moveCursorLeft(int count) {
-        int newColumn = Math.max(0, cursor.getColumn() - count);
-        cursor.setColumn(newColumn);
+        int newColumn = cursor.getColumn();
+        
+        for (int i = 0; i < count && newColumn > 0; i++) {
+            newColumn--;
+            // Skip over wide character continuations
+            while (newColumn > 0 && screen.get(cursor.getRow()).get(newColumn).isWideContinuation()) {
+                newColumn--;
+            }
+        }
+        
+        cursor.setColumn(Math.max(0, newColumn));
     }
 
     /**
      * Moves the cursor right by the specified number of columns.
      * The cursor will not move outside screen bounds.
+     * Skips over wide character continuations.
      */
     public void moveCursorRight(int count) {
-        int newColumn = Math.min(width - 1, cursor.getColumn() + count);
-        cursor.setColumn(newColumn);
+        int newColumn = cursor.getColumn();
+        
+        for (int i = 0; i < count && newColumn < width - 1; i++) {
+            // If current cell is a wide character, skip the continuation
+            if (newColumn < width && screen.get(cursor.getRow()).get(newColumn).isWide()) {
+                newColumn += 2;
+            } else {
+                newColumn++;
+            }
+            // Make sure we don't land on a continuation
+            while (newColumn < width && screen.get(cursor.getRow()).get(newColumn).isWideContinuation()) {
+                newColumn++;
+            }
+        }
+        
+        cursor.setColumn(Math.min(width - 1, newColumn));
     }
 
     // Editing operations
@@ -164,6 +303,7 @@ public class TerminalBuffer {
      * The text is written with the current attributes.
      * The cursor moves to the position after the last written character.
      * If the text extends beyond the line width, it is truncated.
+     * Supports wide characters (CJK, emoji) that occupy 2 cells.
      */
     public void writeText(String text) {
         if (text == null || text.isEmpty()) {
@@ -174,13 +314,31 @@ public class TerminalBuffer {
         int col = cursor.getColumn();
         List<Cell> line = screen.get(row);
         
-        for (int i = 0; i < text.length() && col + i < width; i++) {
+        int i = 0;
+        while (i < text.length() && col < width) {
             char ch = text.charAt(i);
-            line.set(col + i, new Cell(ch, currentAttributes));
+            Cell cell = new Cell(ch, currentAttributes);
+            
+            if (cell.isWide()) {
+                // Wide character needs 2 cells
+                if (col + 1 < width) {
+                    line.set(col, cell);
+                    // Second cell is a continuation marker
+                    line.set(col + 1, new Cell(' ', currentAttributes, false, true));
+                    col += 2;
+                } else {
+                    // Not enough space for wide character, stop here
+                    break;
+                }
+            } else {
+                line.set(col, cell);
+                col += 1;
+            }
+            i++;
         }
         
         // Move cursor to the position after the last written character
-        cursor.setColumn(Math.min(width - 1, col + text.length()));
+        cursor.setColumn(Math.min(width - 1, col));
     }
 
     /**
