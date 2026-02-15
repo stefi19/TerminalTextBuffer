@@ -157,7 +157,138 @@ public class TerminalBuffer {
         cursor.setColumn(newColumn);
     }
 
-    // Editing operations (to be implemented in next steps)
-    
-    // Content access (to be implemented in next steps)
+    // Editing operations
+
+    /**
+     * Writes text at the current cursor position, overwriting existing content.
+     * The text is written with the current attributes.
+     * The cursor moves to the position after the last written character.
+     * If the text extends beyond the line width, it is truncated.
+     */
+    public void writeText(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        
+        int row = cursor.getRow();
+        int col = cursor.getColumn();
+        List<Cell> line = screen.get(row);
+        
+        for (int i = 0; i < text.length() && col + i < width; i++) {
+            char ch = text.charAt(i);
+            line.set(col + i, new Cell(ch, currentAttributes));
+        }
+        
+        // Move cursor to the position after the last written character
+        cursor.setColumn(Math.min(width - 1, col + text.length()));
+    }
+
+    /**
+     * Inserts text at the current cursor position, shifting existing content to the right.
+     * Content that is pushed beyond the line width wraps to the next line.
+     * The text is written with the current attributes.
+     * The cursor moves to the position after the last written character.
+     */
+    public void insertText(String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        
+        int row = cursor.getRow();
+        int col = cursor.getColumn();
+        List<Cell> line = screen.get(row);
+        
+        // Insert characters one by one
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            
+            if (col + i < width) {
+                // Insert character at current position
+                line.add(col + i, new Cell(ch, currentAttributes));
+                
+                // If line exceeds width, handle wrapping
+                if (line.size() > width) {
+                    Cell wrappedCell = line.remove(width);
+                    
+                    // If there's a next line, insert the wrapped cell at the beginning
+                    if (row + 1 < height) {
+                        List<Cell> nextLine = screen.get(row + 1);
+                        nextLine.add(0, wrappedCell);
+                        if (nextLine.size() > width) {
+                            nextLine.remove(width);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Move cursor to the position after the last written character
+        cursor.setColumn(Math.min(width - 1, col + text.length()));
+    }
+
+    /**
+     * Fills the specified line with the given character using current attributes.
+     * 
+     * @param row the row to fill (0-based)
+     * @param ch the character to fill with (or ' ' for empty)
+     * @throws IllegalArgumentException if row is out of bounds
+     */
+    public void fillLine(int row, char ch) {
+        if (row < 0 || row >= height) {
+            throw new IllegalArgumentException("Row " + row + " is out of bounds");
+        }
+        
+        List<Cell> line = screen.get(row);
+        line.clear();
+        Cell fillCell = new Cell(ch, currentAttributes);
+        for (int i = 0; i < width; i++) {
+            line.add(fillCell);
+        }
+    }
+
+    /**
+     * Inserts an empty line at the bottom of the screen.
+     * The top line is moved to scrollback if scrollback is enabled.
+     */
+    public void insertEmptyLineAtBottom() {
+        // Move top line to scrollback
+        List<Cell> topLine = screen.remove(0);
+        scrollback.add(topLine);
+        
+        // Trim scrollback if it exceeds the maximum
+        if (scrollback.size() > maxScrollbackLines) {
+            scrollback.remove(0);
+        }
+        
+        // Add empty line at bottom
+        screen.add(createEmptyLine());
+        
+        // Adjust cursor if it was on the top line
+        if (cursor.getRow() > 0) {
+            cursor.setRow(cursor.getRow() - 1);
+        }
+    }
+
+    /**
+     * Clears the entire screen, filling it with empty cells.
+     * Scrollback is preserved, and cursor is reset to (0, 0).
+     */
+    public void clearScreen() {
+        screen.clear();
+        for (int i = 0; i < height; i++) {
+            screen.add(createEmptyLine());
+        }
+        cursor.setPosition(0, 0);
+    }
+
+    /**
+     * Clears the entire screen and scrollback buffer.
+     * Cursor is reset to (0, 0).
+     */
+    public void clearAll() {
+        clearScreen();
+        scrollback.clear();
+    }
+
+    // Content access (to be implemented in next step)
 }
