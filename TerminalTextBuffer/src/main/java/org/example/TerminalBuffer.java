@@ -338,7 +338,8 @@ public class TerminalBuffer {
         }
         
         // Move cursor to the position after the last written character
-        cursor.setColumn(Math.min(width - 1, col));
+        // Allow cursor to be at width (off-screen right) after writing last column
+        cursor.setColumn(col);
     }
 
     /**

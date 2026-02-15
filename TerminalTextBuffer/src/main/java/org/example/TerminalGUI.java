@@ -119,13 +119,28 @@ public class TerminalGUI {
         
         // Style checkboxes
         boldCheckBox = new JCheckBox("Bold");
-        boldCheckBox.addActionListener(e -> updateCurrentAttributes());
+        boldCheckBox.addActionListener(e -> {
+            updateCurrentAttributes();
+            if (terminalPanel.isInteractiveMode()) {
+                terminalPanel.requestFocusInWindow();
+            }
+        });
         
         italicCheckBox = new JCheckBox("Italic");
-        italicCheckBox.addActionListener(e -> updateCurrentAttributes());
+        italicCheckBox.addActionListener(e -> {
+            updateCurrentAttributes();
+            if (terminalPanel.isInteractiveMode()) {
+                terminalPanel.requestFocusInWindow();
+            }
+        });
         
         underlineCheckBox = new JCheckBox("Underline");
-        underlineCheckBox.addActionListener(e -> updateCurrentAttributes());
+        underlineCheckBox.addActionListener(e -> {
+            updateCurrentAttributes();
+            if (terminalPanel.isInteractiveMode()) {
+                terminalPanel.requestFocusInWindow();
+            }
+        });
         
         // Color combos
         Color[] colors = Color.values();
@@ -133,12 +148,22 @@ public class TerminalGUI {
         foregroundCombo = new JComboBox<>(colors);
         foregroundCombo.setSelectedItem(Color.DEFAULT);
         foregroundCombo.setRenderer(new ColorComboRenderer());
-        foregroundCombo.addActionListener(e -> updateCurrentAttributes());
+        foregroundCombo.addActionListener(e -> {
+            updateCurrentAttributes();
+            if (terminalPanel.isInteractiveMode()) {
+                terminalPanel.requestFocusInWindow();
+            }
+        });
         
         backgroundCombo = new JComboBox<>(colors);
         backgroundCombo.setSelectedItem(Color.DEFAULT);
         backgroundCombo.setRenderer(new ColorComboRenderer());
-        backgroundCombo.addActionListener(e -> updateCurrentAttributes());
+        backgroundCombo.addActionListener(e -> {
+            updateCurrentAttributes();
+            if (terminalPanel.isInteractiveMode()) {
+                terminalPanel.requestFocusInWindow();
+            }
+        });
         
         panel.add(boldCheckBox);
         panel.add(italicCheckBox);
