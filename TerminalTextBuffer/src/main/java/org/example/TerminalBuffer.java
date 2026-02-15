@@ -290,5 +290,129 @@ public class TerminalBuffer {
         scrollback.clear();
     }
 
-    // Content access (to be implemented in next step)
+    // Content access
+
+    /**
+     * Gets the character at the specified position.
+     * Can access both screen and scrollback.
+     * 
+     * @param row the row (0-based, negative values access scrollback)
+     * @param column the column (0-based)
+     * @return the character at the position
+     * @throws IllegalArgumentException if position is out of bounds
+     */
+    public char getCharAt(int row, int column) {
+        if (column < 0 || column >= width) {
+            throw new IllegalArgumentException("Column " + column + " is out of bounds");
+        }
+        
+        List<Cell> line = getLineAt(row);
+        return line.get(column).getCharacter();
+    }
+
+    /**
+     * Gets the cell attributes at the specified position.
+     * Can access both screen and scrollback.
+     * 
+     * @param row the row (0-based, negative values access scrollback)
+     * @param column the column (0-based)
+     * @return the cell attributes at the position
+     * @throws IllegalArgumentException if position is out of bounds
+     */
+    public CellAttributes getAttributesAt(int row, int column) {
+        if (column < 0 || column >= width) {
+            throw new IllegalArgumentException("Column " + column + " is out of bounds");
+        }
+        
+        List<Cell> line = getLineAt(row);
+        return line.get(column).getAttributes();
+    }
+
+    /**
+     * Gets a line as a string.
+     * Can access both screen and scrollback.
+     * 
+     * @param row the row (0-based, negative values access scrollback from the end)
+     * @return the line as a string
+     * @throws IllegalArgumentException if row is out of bounds
+     */
+    public String getLineAsString(int row) {
+        List<Cell> line = getLineAt(row);
+        StringBuilder sb = new StringBuilder(width);
+        for (Cell cell : line) {
+            sb.append(cell.getCharacter());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Helper method to get a line from screen or scrollback.
+     * 
+     * @param row the row (0-based for screen, negative for scrollback)
+     * @return the line
+     * @throws IllegalArgumentException if row is out of bounds
+     */
+    private List<Cell> getLineAt(int row) {
+        if (row >= 0 && row < height) {
+            // Access screen
+            return screen.get(row);
+        } else if (row < 0) {
+            // Access scrollback (negative indices)
+            int scrollbackIndex = scrollback.size() + row;
+            if (scrollbackIndex >= 0 && scrollbackIndex < scrollback.size()) {
+                return scrollback.get(scrollbackIndex);
+            }
+        }
+        throw new IllegalArgumentException("Row " + row + " is out of bounds");
+    }
+
+    /**
+     * Gets the entire screen content as a string.
+     * Lines are separated by newline characters.
+     * 
+     * @return the screen content as a string
+     */
+    public String getScreenAsString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < height; i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append(getLineAsString(i));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Gets the entire screen and scrollback content as a string.
+     * Lines are separated by newline characters.
+     * Scrollback lines appear first, followed by screen lines.
+     * 
+     * @return the complete buffer content as a string
+     */
+    public String getAllContentAsString() {
+        StringBuilder sb = new StringBuilder();
+        
+        // Add scrollback content
+        for (int i = 0; i < scrollback.size(); i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append(getLineAsString(-scrollback.size() + i));
+        }
+        
+        // Add screen content
+        if (!scrollback.isEmpty() && height > 0) {
+            sb.append('\n');
+        }
+        
+        for (int i = 0; i < height; i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append(getLineAsString(i));
+        }
+        
+        return sb.toString();
+    }
 }
