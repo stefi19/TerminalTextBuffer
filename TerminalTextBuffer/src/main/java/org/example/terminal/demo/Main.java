@@ -1,4 +1,10 @@
-package org.example;
+package org.example.terminal.demo;
+
+import org.example.terminal.buffer.Cursor;
+import org.example.terminal.buffer.TerminalBuffer;
+import org.example.terminal.model.CellAttributes;
+import org.example.terminal.model.Color;
+import org.example.terminal.model.StyleFlags;
 
 /**
  * Demonstration of the TerminalBuffer functionality.

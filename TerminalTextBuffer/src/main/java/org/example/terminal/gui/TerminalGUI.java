@@ -1,4 +1,11 @@
-package org.example;
+package org.example.terminal.gui;
+
+import org.example.terminal.buffer.TerminalBuffer;
+import org.example.terminal.model.Cell;
+import org.example.terminal.model.CellAttributes;
+import org.example.terminal.model.Color;
+import org.example.terminal.model.StyleFlags;
+import org.example.terminal.util.ColorMapper;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
@@ -265,24 +272,24 @@ public class TerminalGUI {
             
             // Write instructions
             buffer.setCurrentAttributes(new CellAttributes(
-                org.example.Color.BRIGHT_CYAN,
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.BRIGHT_CYAN,
+                org.example.terminal.model.Color.DEFAULT,
                 new StyleFlags(true, false, false)
             ));
             buffer.writeText("=== INTERACTIVE MODE ===");
             
             buffer.setCursorPosition(2, 0);
             buffer.setCurrentAttributes(new CellAttributes(
-                org.example.Color.BRIGHT_WHITE,
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.BRIGHT_WHITE,
+                org.example.terminal.model.Color.DEFAULT,
                 StyleFlags.DEFAULT
             ));
             buffer.writeText("Start typing! Try:");
             
             buffer.setCursorPosition(3, 2);
             buffer.setCurrentAttributes(new CellAttributes(
-                org.example.Color.YELLOW,
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.YELLOW,
+                org.example.terminal.model.Color.DEFAULT,
                 StyleFlags.DEFAULT
             ));
             buffer.writeText("- Regular text");
@@ -301,8 +308,8 @@ public class TerminalGUI {
             
             buffer.setCursorPosition(9, 0);
             buffer.setCurrentAttributes(new CellAttributes(
-                org.example.Color.BRIGHT_GREEN,
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.BRIGHT_GREEN,
+                org.example.terminal.model.Color.DEFAULT,
                 new StyleFlags(false, true, false)
             ));
             buffer.writeText("Type below this line:");
@@ -326,8 +333,8 @@ public class TerminalGUI {
         
         // Title
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_CYAN,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_CYAN,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, false)
         ));
         buffer.writeText("=== Terminal Buffer Visual Demo ===");
@@ -335,8 +342,8 @@ public class TerminalGUI {
         // Section 1: Colors
         buffer.setCursorPosition(2, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("1. Color Demonstration:");
@@ -347,8 +354,8 @@ public class TerminalGUI {
         // Section 2: Styles
         buffer.setCursorPosition(6, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("2. Style Demonstration:");
@@ -359,8 +366,8 @@ public class TerminalGUI {
         // Section 3: Background colors
         buffer.setCursorPosition(11, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("3. Background Colors:");
@@ -371,8 +378,8 @@ public class TerminalGUI {
         // Section 4: Combined styles
         buffer.setCursorPosition(15, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("4. Combined Styles:");
@@ -383,8 +390,8 @@ public class TerminalGUI {
         // Section 5: Wide characters (CJK, emoji)
         buffer.setCursorPosition(19, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("5. Wide Characters (2-cell):");
@@ -395,8 +402,8 @@ public class TerminalGUI {
         // Footer
         buffer.setCursorPosition(22, 0);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_BLACK,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_BLACK,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(false, true, false)
         ));
         buffer.writeText("Use the buttons and style controls below to interact!");
@@ -405,13 +412,13 @@ public class TerminalGUI {
     }
 
     private void demonstrateColors() {
-        org.example.Color[] colors = {
-            org.example.Color.RED,
-            org.example.Color.GREEN,
-            org.example.Color.YELLOW,
-            org.example.Color.BLUE,
-            org.example.Color.MAGENTA,
-            org.example.Color.CYAN
+        org.example.terminal.model.Color[] colors = {
+            org.example.terminal.model.Color.RED,
+            org.example.terminal.model.Color.GREEN,
+            org.example.terminal.model.Color.YELLOW,
+            org.example.terminal.model.Color.BLUE,
+            org.example.terminal.model.Color.MAGENTA,
+            org.example.terminal.model.Color.CYAN
         };
         
         String[] names = {"Red", "Green", "Yellow", "Blue", "Magenta", "Cyan"};
@@ -421,7 +428,7 @@ public class TerminalGUI {
             buffer.setCursorPosition(row, 3 + i * 12);
             buffer.setCurrentAttributes(new CellAttributes(
                 colors[i],
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.DEFAULT,
                 StyleFlags.DEFAULT
             ));
             buffer.writeText(names[i]);
@@ -429,20 +436,20 @@ public class TerminalGUI {
         
         // Bright colors on next line
         buffer.setCursorPosition(row + 1, 3);
-        org.example.Color[] brightColors = {
-            org.example.Color.BRIGHT_RED,
-            org.example.Color.BRIGHT_GREEN,
-            org.example.Color.BRIGHT_YELLOW,
-            org.example.Color.BRIGHT_BLUE,
-            org.example.Color.BRIGHT_MAGENTA,
-            org.example.Color.BRIGHT_CYAN
+        org.example.terminal.model.Color[] brightColors = {
+            org.example.terminal.model.Color.BRIGHT_RED,
+            org.example.terminal.model.Color.BRIGHT_GREEN,
+            org.example.terminal.model.Color.BRIGHT_YELLOW,
+            org.example.terminal.model.Color.BRIGHT_BLUE,
+            org.example.terminal.model.Color.BRIGHT_MAGENTA,
+            org.example.terminal.model.Color.BRIGHT_CYAN
         };
         
         for (int i = 0; i < brightColors.length; i++) {
             buffer.setCursorPosition(row + 1, 3 + i * 12);
             buffer.setCurrentAttributes(new CellAttributes(
                 brightColors[i],
-                org.example.Color.DEFAULT,
+                org.example.terminal.model.Color.DEFAULT,
                 StyleFlags.DEFAULT
             ));
             buffer.writeText("Bright");
@@ -455,8 +462,8 @@ public class TerminalGUI {
         // Bold
         buffer.setCursorPosition(row, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.GREEN,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.GREEN,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(true, false, false)
         ));
         buffer.writeText("Bold Text");
@@ -464,8 +471,8 @@ public class TerminalGUI {
         // Italic
         buffer.setCursorPosition(row + 1, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.YELLOW,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.YELLOW,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(false, true, false)
         ));
         buffer.writeText("Italic Text");
@@ -473,8 +480,8 @@ public class TerminalGUI {
         // Underline
         buffer.setCursorPosition(row + 2, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.CYAN,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.CYAN,
+            org.example.terminal.model.Color.DEFAULT,
             new StyleFlags(false, false, true)
         ));
         buffer.writeText("Underlined Text");
@@ -485,22 +492,22 @@ public class TerminalGUI {
         
         buffer.setCursorPosition(row, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.WHITE,
-            org.example.Color.RED,
+            org.example.terminal.model.Color.WHITE,
+            org.example.terminal.model.Color.RED,
             StyleFlags.DEFAULT
         ));
         buffer.writeText(" Red BG ");
         
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.WHITE,
-            org.example.Color.BLUE,
+            org.example.terminal.model.Color.WHITE,
+            org.example.terminal.model.Color.BLUE,
             StyleFlags.DEFAULT
         ));
         buffer.writeText(" Blue BG ");
         
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BLACK,
-            org.example.Color.GREEN,
+            org.example.terminal.model.Color.BLACK,
+            org.example.terminal.model.Color.GREEN,
             StyleFlags.DEFAULT
         ));
         buffer.writeText(" Green BG ");
@@ -511,16 +518,16 @@ public class TerminalGUI {
         
         buffer.setCursorPosition(row, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_YELLOW,
-            org.example.Color.BLUE,
+            org.example.terminal.model.Color.BRIGHT_YELLOW,
+            org.example.terminal.model.Color.BLUE,
             new StyleFlags(true, true, true)
         ));
         buffer.writeText("Bold+Italic+Underline with colors!");
         
         buffer.setCursorPosition(row + 1, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_WHITE,
-            org.example.Color.MAGENTA,
+            org.example.terminal.model.Color.BRIGHT_WHITE,
+            org.example.terminal.model.Color.MAGENTA,
             new StyleFlags(true, false, true)
         ));
         buffer.writeText("Bold+Underline on colored background");
@@ -531,8 +538,8 @@ public class TerminalGUI {
         
         buffer.setCursorPosition(row, 3);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_GREEN,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_GREEN,
+            org.example.terminal.model.Color.DEFAULT,
             StyleFlags.DEFAULT
         ));
         // Note: Wide characters may not render properly depending on the font
@@ -541,16 +548,16 @@ public class TerminalGUI {
         
         buffer.setCursorPosition(row, 20);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_MAGENTA,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_MAGENTA,
+            org.example.terminal.model.Color.DEFAULT,
             StyleFlags.DEFAULT
         ));
         buffer.writeText("Katakana: \u30AB\u30BF\u30AB\u30CA");  // Japanese
         
         buffer.setCursorPosition(row, 40);
         buffer.setCurrentAttributes(new CellAttributes(
-            org.example.Color.BRIGHT_CYAN,
-            org.example.Color.DEFAULT,
+            org.example.terminal.model.Color.BRIGHT_CYAN,
+            org.example.terminal.model.Color.DEFAULT,
             StyleFlags.DEFAULT
         ));
         buffer.writeText("Hangul: \uD55C\uAE00");  // Korean

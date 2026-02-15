@@ -1,4 +1,4 @@
-package org.example;
+package org.example.terminal.model;
 
 import java.util.Objects;
 
@@ -8,6 +8,7 @@ import java.util.Objects;
  * Supports wide characters (CJK, emoji) that occupy 2 cells.
  */
 public class Cell {
+    
     private final char character;
     private final CellAttributes attributes;
     private final boolean isWide;
@@ -52,17 +53,24 @@ public class Cell {
     /**
      * Determines if a character is a wide character (occupies 2 cells).
      * Wide characters include CJK ideographs, full-width characters, and emoji.
+     * 
+     * @param ch the character to check
+     * @return true if the character occupies 2 cells, false otherwise
      */
     public static boolean isWideCharacter(char ch) {
         // CJK Unified Ideographs
         if (ch >= 0x4E00 && ch <= 0x9FFF) return true;
+        
         // Hiragana and Katakana
         if (ch >= 0x3040 && ch <= 0x30FF) return true;
+        
         // Hangul
         if (ch >= 0xAC00 && ch <= 0xD7AF) return true;
+        
         // Full-width forms
         if (ch >= 0xFF00 && ch <= 0xFFEF) return true;
-        // Emoji and symbols (basic check - more comprehensive would check Unicode properties)
+        
+        // Emoji and symbols (basic check)
         if (ch >= 0x1F300 && ch <= 0x1F9FF) return true;
         
         return false;
@@ -89,6 +97,8 @@ public class Cell {
         return "Cell{" +
                 "character=" + character +
                 ", attributes=" + attributes +
+                ", isWide=" + isWide +
+                ", isWideContinuation=" + isWideContinuation +
                 '}';
     }
 }

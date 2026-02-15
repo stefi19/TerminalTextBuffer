@@ -1,5 +1,11 @@
 package org.example;
 
+import org.example.terminal.model.Color;
+import org.example.terminal.util.ColorMapper;
+
+import org.example.terminal.model.Color;
+import org.example.terminal.util.ColorMapper;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 

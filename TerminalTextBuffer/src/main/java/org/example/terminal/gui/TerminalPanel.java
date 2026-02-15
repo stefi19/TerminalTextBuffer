@@ -1,4 +1,11 @@
-package org.example;
+package org.example.terminal.gui;
+
+import org.example.terminal.buffer.Cursor;
+import org.example.terminal.buffer.TerminalBuffer;
+import org.example.terminal.model.Cell;
+import org.example.terminal.model.CellAttributes;
+import org.example.terminal.model.StyleFlags;
+import org.example.terminal.util.ColorMapper;
 
 import javax.swing.*;
 import java.awt.Dimension;

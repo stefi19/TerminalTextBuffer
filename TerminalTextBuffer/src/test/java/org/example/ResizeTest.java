@@ -1,5 +1,11 @@
 package org.example;
 
+import org.example.terminal.buffer.TerminalBuffer;
+import org.example.terminal.model.Cell;
+import org.example.terminal.model.CellAttributes;
+import org.example.terminal.model.Color;
+import org.example.terminal.model.StyleFlags;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

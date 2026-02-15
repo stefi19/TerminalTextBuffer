@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.terminal.buffer.TerminalBuffer;
+import org.example.terminal.gui.TerminalPanel;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.terminal.model;
 
 import java.util.Objects;
 
@@ -7,6 +7,7 @@ import java.util.Objects;
  * This class is immutable and uses a builder pattern for creating variations.
  */
 public class StyleFlags {
+    
     private final boolean bold;
     private final boolean italic;
     private final boolean underline;
@@ -51,7 +52,9 @@ public class StyleFlags {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StyleFlags that = (StyleFlags) o;
-        return bold == that.bold && italic == that.italic && underline == that.underline;
+        return bold == that.bold && 
+               italic == that.italic && 
+               underline == that.underline;
     }
 
     @Override

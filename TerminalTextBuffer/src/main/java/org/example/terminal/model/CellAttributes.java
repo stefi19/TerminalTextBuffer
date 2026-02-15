@@ -1,4 +1,4 @@
-package org.example;
+package org.example.terminal.model;
 
 import java.util.Objects;
 
@@ -8,6 +8,7 @@ import java.util.Objects;
  * This class is immutable.
  */
 public class CellAttributes {
+    
     private final Color foreground;
     private final Color background;
     private final StyleFlags styleFlags;

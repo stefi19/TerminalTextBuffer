@@ -1,4 +1,7 @@
-package org.example;
+package org.example.terminal.buffer;
+
+import org.example.terminal.model.Cell;
+import org.example.terminal.model.CellAttributes;
 
 import java.util.ArrayList;
 import java.util.List;

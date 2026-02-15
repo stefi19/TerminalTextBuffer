@@ -1,4 +1,4 @@
-package org.example;
+package org.example.terminal.buffer;
 
 import java.util.Objects;
 
@@ -8,6 +8,7 @@ import java.util.Objects;
  * Row and column are 0-based.
  */
 public class Cursor {
+    
     private int row;
     private int column;
 
@@ -44,6 +45,8 @@ public class Cursor {
     /**
      * Moves the cursor up by the specified number of rows.
      * Does not validate bounds - caller must ensure the position is valid.
+     * 
+     * @param count number of rows to move up
      */
     public void moveUp(int count) {
         this.row -= count;
@@ -52,6 +55,8 @@ public class Cursor {
     /**
      * Moves the cursor down by the specified number of rows.
      * Does not validate bounds - caller must ensure the position is valid.
+     * 
+     * @param count number of rows to move down
      */
     public void moveDown(int count) {
         this.row += count;
@@ -60,6 +65,8 @@ public class Cursor {
     /**
      * Moves the cursor left by the specified number of columns.
      * Does not validate bounds - caller must ensure the position is valid.
+     * 
+     * @param count number of columns to move left
      */
     public void moveLeft(int count) {
         this.column -= count;
@@ -68,6 +75,8 @@ public class Cursor {
     /**
      * Moves the cursor right by the specified number of columns.
      * Does not validate bounds - caller must ensure the position is valid.
+     * 
+     * @param count number of columns to move right
      */
     public void moveRight(int count) {
         this.column += count;

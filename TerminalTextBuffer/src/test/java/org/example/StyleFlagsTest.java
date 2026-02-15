@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.terminal.model.StyleFlags;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 

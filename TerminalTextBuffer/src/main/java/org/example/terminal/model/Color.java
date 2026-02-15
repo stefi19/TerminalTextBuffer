@@ -1,4 +1,4 @@
-package org.example;
+package org.example.terminal.model;
 
 /**
  * Represents the 16 standard terminal colors plus a default color.
