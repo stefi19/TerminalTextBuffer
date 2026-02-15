@@ -1,6 +1,6 @@
 # Terminal Text Buffer
 
-A Java implementation of the core data structure used by terminal emulators to store and manipulate displayed text, with full GUI support for visual rendering.
+A Java implementation of the core data structure used by terminal emulators to store and manipulate displayed text, with **full GUI support for visual rendering and interactive keyboard input**.
 
 ## Overview
 
@@ -10,7 +10,8 @@ This project implements a terminal text buffer that manages:
 - Scrollback history (lines that have scrolled off-screen)
 - Cursor position and movement
 - Text editing operations
-- **Visual rendering with Swing GUI** (NEW!)
+- **Visual rendering with Swing GUI**
+- **Interactive keyboard input mode** (NEW!)
 
 ## Features
 
@@ -22,9 +23,9 @@ This project implements a terminal text buffer that manages:
 - **Cell**: Individual character cell with its attributes
 - **Cursor**: Position tracking within the buffer
 - **TerminalBuffer**: Main buffer implementation with screen and scrollback
-- **ColorMapper**: Maps terminal colors to AWT colors for rendering (NEW!)
-- **TerminalPanel**: Swing component that visually renders the buffer (NEW!)
-- **TerminalGUI**: Interactive GUI demo application (NEW!)
+- **ColorMapper**: Maps terminal colors to AWT colors for rendering
+- **TerminalPanel**: Swing component that visually renders the buffer with **keyboard input support** (NEW!)
+- **TerminalGUI**: Interactive GUI demo application with **interactive mode toggle** (NEW!)
 
 ### Operations Supported
 
@@ -99,8 +100,17 @@ The GUI demo provides:
 - **Visual rendering** of all terminal colors (normal and bright variants)
 - **Real-time display** of bold, italic, and underline styles
 - **Background colors** with proper foreground/background combinations
+- **Interactive keyboard input mode**: Type directly into the terminal! (NEW!)
+  - Regular character input
+  - Arrow keys for cursor movement (←, →, ↑, ↓)
+  - Enter for newline
+  - Backspace for deletion
+  - Tab for spaces
+  - Home/End keys
 - **Interactive controls**: Clear screen, run demo, add scrollback, adjust font size
+- **Mode toggle**: Switch between demo mode and interactive mode
 - **Blinking cursor** showing current position
+- **Status indicator** showing current mode
 
 ## Running Tests
 
@@ -197,12 +207,14 @@ The project includes comprehensive tests covering:
 - **StyleFlagsTest**: Style flag combinations
 - **CellAttributesTest**: Attribute immutability and combinations
 - **CellTest**: Cell behavior and empty cell detection
-- **ColorMapperTest**: Color mapping and conversion (NEW!)
+- **ColorMapperTest**: Color mapping and conversion
+- **TerminalPanelTest**: Interactive mode and panel functionality (NEW!)
 
 ### Test Statistics
-- 60+ test cases
+- 90+ test cases
 - All edge cases and boundary conditions covered
 - Tests document expected behavior
+- Interactive features tested
 
 ## Project Structure
 
@@ -258,7 +270,7 @@ src/
 - Writing text applies current attributes to new cells
 - Allows easy batch styling without passing attributes to each operation
 
-### GUI Rendering (NEW!)
+### GUI Rendering
 - Full color support: 16 standard ANSI colors (normal + bright variants)
 - Style rendering: bold, italic, underline visually displayed
 - Background colors properly rendered
@@ -266,6 +278,19 @@ src/
 - Blinking cursor indicator
 - Adjustable font size
 - Smooth text antialiasing
+
+### Interactive Features (NEW!)
+- **Keyboard input**: Type directly into the terminal buffer
+- **Character input**: All printable characters supported
+- **Special keys**:
+  - Arrow keys (←, →, ↑, ↓) for cursor movement
+  - Enter/Return for newline
+  - Backspace for character deletion
+  - Tab for spaces (4-space indent)
+  - Home/End for line navigation
+- **Mode toggle**: Switch between demo and interactive modes
+- **Visual feedback**: Status indicator shows current mode
+- **Focus management**: Automatic focus when entering interactive mode
 
 ## Git History
 
@@ -288,6 +313,9 @@ The repository demonstrates incremental development with clear commits:
 15. **Add ColorMapper for terminal color to AWT color conversion** (NEW!)
 16. **Add TerminalPanel Swing component for visual rendering** (NEW!)
 17. **Add tests for ColorMapper** (NEW!)
+18. **Update README with GUI documentation and examples**
+19. **Add script to easily run GUI demo**
+20. **Add interactive keyboard input mode to GUI** (NEW!)
 
 Each commit represents a logical unit of work with descriptive messages.
 
